@@ -1,0 +1,29 @@
+%% Stretch index
+
+% Mean distance of every teammate to their team centroid
+
+% 1. Input must be arranged in alternating x- and y- columns for each unit 
+% of time series. 
+
+% 2. Output is a single-column array in time series
+
+function StretchIndex = stretch_index(Team)
+
+% First calculate the team centroid
+Centroid_Team = [mean(Team(:,1:2:end),2) mean(Team(:,2:2:end),2)];
+
+% Count the number of players in Team
+n_Team = size(Team,2)/2;
+        
+% For simplicity, use repmat such that the size of the
+% Centroid_Team array is the same as Team
+Centroid_Team_repeated = repmat(Centroid_Team, 1, n_Team);
+
+% Calculate every player's distance to the team centroid
+D = Team-Centroid_Team_repeated;
+Dist_to_centroid_Team = hypot(D(:,1:2:end), D(:,2:2:end));
+
+% Compute the stretch index
+StretchIndex = mean(Dist_to_centroid_Team, 2);
+        
+end

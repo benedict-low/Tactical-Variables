@@ -1,0 +1,112 @@
+%% Centroids
+
+% Team centroid, players' distances to centroid, inter-team centroid
+% distance
+
+% This function calculates the team centroid for a group of players, players'
+% distances to that team centroid, and if two teams are input, the distance 
+% between their centroids
+
+% 1. Input must be arranged in alternating x- and y- columns for each unit 
+% of time series. Output is a cell array with two or five columns,
+% depending on the number of input arguments.
+
+% 2. If only the coordinates of one team is input, i.e. Centroids(Team1), 
+% then the function returns the coordinates of the centroid (column 1), 
+% and each player's distance to the centroid per unit time series (column 2).
+
+% 3. If the coordinates of two teams are input, i.e. Centroids(Team1,Team2),
+% then the function returns the coordinates of Team1 centroid (Column 1),
+% distances of Team 1 players to their centroid (column 2), Team2 centroid
+% (column 3), distances of Team 2 players to their centroid (column 4), and
+% inter-team centroid distance (column 5). 
+
+% Make sure both input teams have the same number of rows 
+% (i.e. same length of time series).
+
+function Centroid = Centroids(Team1, Team2)
+
+switch nargin
+    
+    % The condition when only one team is input
+    case 1
+        
+        % First calculate the team centroid
+        Centroid_Team1 = [mean(Team1(:,1:2:end),2) mean(Team1(:,2:2:end),2)];
+        
+        % Creating the output cell array, preallocating for speed. First
+        % column will be the team centroid coordinates, second column will
+        % be the array of every player's distance to the centroid
+        Centroid = cell(1, 2);
+        
+        % Assigning the team centroid to the first cell
+        Centroid{1,1} = Centroid_Team1;
+        
+        % Count the number of players in Team1
+        n_Team1 = size(Team1,2)/2;
+        
+        % For simplicity, use repmat such that the size of the
+        % Centroid_Team1 array is the same as Team 1
+        Centroid_Team1_repeated = repmat(Centroid_Team1, 1, n_Team1);
+        
+        % Calculate every player's distance to the team centroid
+        Dist_to_centroid_Team1 = ...
+            hypot(Team1(:,1:2:end)-Centroid_Team1_repeated(:,1:2:end),...
+            Team1(:,2:2:end)-Centroid_Team1_repeated(:,2:2:end));
+        
+        % Assign this array into the second cell of the output.
+        Centroid{1,2} = Dist_to_centroid_Team1;
+        
+    
+    % The condition when two opposing teams are input
+    case 2
+        
+        % Counts number of players in each team by dividing the number of 
+        % columns in each team array by two
+        n_Team1 = size(Team1,2)/2;
+        n_Team2 = size(Team2,2)/2;
+        
+        % Calculate the team centroids
+        Centroid_Team1 = [mean(Team1(:,1:2:end),2) mean(Team1(:,2:2:end),2)];
+        Centroid_Team2 = [mean(Team2(:,1:2:end),2) mean(Team2(:,2:2:end),2)];
+        
+        % Creating the output cell array, preallocating for speed. First
+        % column will be the Team1 centroid coordinates, second column will
+        % be the Team1 array of every player's distance to the centroid.
+        % Third column will be the Team2 centroid coordinates, fourth
+        % column will be the Team2 array of every player's distance to the
+        % centroid. Fifth column will be the inter-team centroid distance
+        % between Team1 and Team2.
+        Centroid = cell(1, 5);
+        
+        % Assigning the team centroid to the first and third cell
+        Centroid{1,1} = Centroid_Team1;
+        Centroid{1,3} = Centroid_Team2;
+        
+        % For simplicity, use repmat such that the sizes of the
+        % Centroid_Team1 and Centroid_Team2 arrays are the same as Team1
+        % and Team2 respectively.
+        Centroid_Team1_repeated = repmat(Centroid_Team1, 1, n_Team1);
+        Centroid_Team2_repeated = repmat(Centroid_Team2, 1, n_Team2);
+        
+        % Calculate every player's distance to the team centroid
+        Dist_to_centroid_Team1 = ...
+            hypot(Team1(:,1:2:end)-Centroid_Team1_repeated(:,1:2:end),...
+            Team1(:,2:2:end)-Centroid_Team1_repeated(:,2:2:end));
+        
+        Dist_to_centroid_Team2 = ...
+            hypot(Team2(:,1:2:end)-Centroid_Team2_repeated(:,1:2:end),...
+            Team2(:,2:2:end)-Centroid_Team2_repeated(:,2:2:end));
+        
+        % Assign the arrays to the second and fourth cell of the output.
+        Centroid{1,2} = Dist_to_centroid_Team1;
+        Centroid{1,4} = Dist_to_centroid_Team2;
+        
+        % Calculate the inter-team centroid distance time series
+        D = Centroid{1,1}-Centroid{1,3};
+        Centroid{1,5} = hypot(D(:,1), D(:,2));
+
+
+end
+
+end

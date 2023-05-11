@@ -1,0 +1,24 @@
+%% Length per width (LpW) ratio
+
+% Team length divided by team width. 
+
+% Team length: distance between the most advanced and least advanced player
+% Team width: distance between the two widest players on the pitch
+
+% Implications: Larger values, more elongated playing shape; 
+% smaller values, more flattened playing shape
+
+% 1. Input must be arranged in alternating x- and y- columns for each unit 
+% of time series.
+
+% 2. Output is a single-column array in time series.
+
+
+function LpW = LpW_ratio(Team)
+
+LengthWidth = [max(Team(:,1:2:end),[],2)-min(Team(:,1:2:end),[],2), ...
+    max(Team(:,2:2:end),[],2)-min(Team(:,2:2:end),[],2)];
+
+LpW = LengthWidth(:,1)./LengthWidth(:,2);
+
+end

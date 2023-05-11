@@ -1,0 +1,58 @@
+%% Team spread
+
+% This function calculates the Team spread for a group of players. It is
+% the Frobenius norm of every player's distance to every other teammate,
+% mathematically calculated as the square root of the sum of squares of
+% every player's distance to every other teammate
+
+% 1. Arrange the input array of a team in alternating columns
+% of x- and y-coordinates with each row of timestamp. 
+
+% 2. The team spread comes out as a column vector
+
+function TeamSpread = Team_spread(Team)
+
+% Counts number of players in the team by dividing the number of columns
+% in the team array by two
+n_Team = size(Team,2)/2;
+
+% Form an array that pivots the data in Team. Preallocate for speed.
+Team_pivot = NaN(n_Team, size(Team,1)*2);
+
+k = 1;
+
+for i=1:size(Team,1);
+    
+    % Each unit of time series is now denoted by every second column 
+    % (x- and y-coordinates)
+    % The rows indicate the number of outfield players
+    Team_pivot(:, k) = Team(i,1:2:end)';
+    Team_pivot(:, k+1) = Team(i,2:2:end)';
+    
+    k = k + 2;
+    
+end
+
+
+% Preallocating an array for team spread
+TeamSpread = NaN(size(Team,1),1);
+
+for i=1:size(TeamSpread,1);
+    
+    % Calculate the distance of every player to every other player
+    D = pdist(Team_pivot(:,i*2-1:i*2));
+    
+    % Presents these pairwise distances in a matrix form
+    Z = squareform(D);
+    
+    % First, square all the distances of every player to every other teammate
+    Z_square = Z.^2;
+    
+    % Then sum up these squared distances and divide by two to get only the
+    % 'lower triangular matrix'. Then, square root that value.
+    TeamSpread(i, 1) = sqrt(sum(Z_square(:))/2);
+    
+end
+
+
+end

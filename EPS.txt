@@ -1,0 +1,22 @@
+%% Effective playing space
+
+% Polygonal area of all players on the periphery of play, calculated using
+% a convex hull method
+
+% 1. Input must be arranged in alternating x- and y- columns for each unit 
+% of time series.
+
+% 2. Output is a single-column array in time series.
+
+function SurfaceArea = EPS(Team)
+
+% Preallocate a time-series array for EPS
+SurfaceArea = NaN(size(Team,1), 1);
+
+for i = 1:size(SurfaceArea,1);
+    
+    [~, SurfaceArea(i,1)] = convhull(Team(i,1:2:end), Team(i,2:2:end));
+    
+end
+
+end

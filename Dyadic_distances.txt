@@ -1,0 +1,53 @@
+%% Dyadic distances
+
+% This function calculates the dyadic distances for a group of players. 
+% This is every player's distance to every other teammate.
+
+% 1. Arrange the input array of a team in alternating columns
+% of x- and y-coordinates with each row of timestamp. 
+
+% 2. The average dyadic distance of the team comes out as a column vector
+
+function DyadicDistances = Dyadic_distances(Team)
+
+% Counts number of players in the team by dividing the number of columns
+% in the team array by two
+n_Team = size(Team,2)/2;
+
+% Form an array that pivots the data in Team. Preallocate for speed.
+Team_pivot = NaN(n_Team, size(Team,1)*2);
+
+k = 1;
+
+for i=1:size(Team,1);
+    
+    % Each unit of time series is now denoted by every second column 
+    % (x- and y-coordinates)
+    % The rows indicate the number of outfield players
+    Team_pivot(:, k) = Team(i,1:2:end)';
+    Team_pivot(:, k+1) = Team(i,2:2:end)';
+    
+    k = k + 2;
+    
+end
+
+
+% Preallocating an array for the team's average dyadic distance
+DyadicDistances = NaN(size(Team,1),1);
+
+for i=1:size(DyadicDistances,1);
+    
+    % Calculate the distance of every player to every other player
+    D = pdist(Team_pivot(:,i*2-1:i*2));
+    
+    % Presents these pairwise distances in a matrix form
+    Z = squareform(D);
+    
+    % Compute the average dyadic distance per unit of time-series. Sum up
+    % all elements in Z, then divide by 2, then divide by the number of
+    % possible dyadic combinations among the team.
+    DyadicDistances(i, 1) = (sum(Z(:))/2)/nchoosek(n_Team,2);
+    
+end
+
+end

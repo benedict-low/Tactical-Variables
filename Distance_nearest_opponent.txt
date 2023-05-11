@@ -1,0 +1,79 @@
+%% Distance to nearest opponent
+
+% This function calculates players' distances to their nearest opponent.
+
+% 1. Arrange the input arrays for Team 1 and Team 2 in alternating columns
+% of x- and y-coordinates with each row of timestamp. Make sure the two 
+% arrays have same number of rows, and an even number of columns.
+
+% 2. The output is as follows: Nearest_Opp is a time-series array of every
+% player's distance to his nearest opponent. Columns of Team 1 players first,
+% followed by columns of Team 2 players
+
+% 3. Nearest_Opp_mean is the average value of distance to nearest opponent.
+% Column 1 is Team 1's mean distance to nearest opponent. Column 2 is Team
+% 2's mean distance to nearest opponent. Column 3 is the mean distance to
+% nearest opponent for both teams
+
+function [Nearest_Opp, Nearest_Opp_mean] = Distance_nearest_opponent(Team1, Team2)
+
+% Counts number of players in each team by dividing the number of columns
+% in each team array by two
+n_Team1 = size(Team1,2)/2;
+n_Team2 = size(Team2,2)/2;
+
+% Total number of players
+n_Total = n_Team1 + n_Team2;
+
+% Concatenate both team arrays into one large array
+Both_teams = [Team1 Team2];
+
+% Form an array that pivots Both_teams. Preallocate for speed.
+Both_teams_pivot = NaN(n_Total, size(Both_teams,1)*2);
+
+k = 1;
+
+for i=1:size(Both_teams,1);
+    
+    % Each unit of time series is now denoted by every second column 
+    % (x- and y-coordinates)
+    % The 20 rows indicate 20 outfield players; first 10 are Team 1.
+    Both_teams_pivot(:, k) = Both_teams(i,1:2:end)';
+    Both_teams_pivot(:, k+1) = Both_teams(i,2:2:end)';
+    
+    k = k + 2;
+    
+end
+
+
+% Preallocating an array for every player's distance to his nearest
+% opponent.
+Nearest_Opp = NaN(size(Both_teams,1),n_Team1+n_Team2);
+
+for i=1:size(Nearest_Opp,1);
+    
+    % Calculate the distance of every player to every other player
+    D = pdist(Both_teams_pivot(:,i*2-1:i*2));
+    
+    % Presents these pairwise distances in a matrix form
+    Z = squareform(D);
+    
+    % Finds each player's distance to the nearest opponent
+    % Team 1
+    Nearest_Opp(i, 1:n_Team1) = min(Z(1:n_Team1,n_Team1+1:end), [],2)';
+    % Team 2
+    Nearest_Opp(i, n_Team1+1:end) = min(Z(n_Team1+1:end,1:n_Team1), [],2)';
+    
+end
+
+% Average distance to nearest opponent:
+% Col 1: average distance to nearest opponent for Team 1
+Nearest_Opp_mean(:,1) = mean(Nearest_Opp(:,1:n_Team1),2);
+
+% Col 2: average distance to nearest opponent for Team 2
+Nearest_Opp_mean(:,2) = mean(Nearest_Opp(:,n_Team1+1:end),2);
+
+% Col 3: average distance to nearest opponent for both teams
+Nearest_Opp_mean(:,3) = mean(Nearest_Opp,2);
+
+end

@@ -1,0 +1,18 @@
+%% Team length and width
+
+% Team length: distance between the most advanced and least advanced player
+% Team width: distance between the two widest players on the pitch
+
+% 1. Input must be arranged in alternating x- and y- columns for each unit 
+% of time series.
+
+% 2. Output is a two-column array in time series.
+% Column 1: Team length
+% Column 2: Team width
+
+function LengthWidth = length_width(Team)
+
+LengthWidth = [max(Team(:,1:2:end),[],2)-min(Team(:,1:2:end),[],2), ...
+    max(Team(:,2:2:end),[],2)-min(Team(:,2:2:end),[],2)];
+
+end
